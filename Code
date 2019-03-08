@@ -1,0 +1,811 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# Heros of Pymoli Summary
+# 
+# *General Insights*
+# Total Transactions: 		780
+# Total Players:			576
+# Total Revenue:		$2379.77
+# Average Purchase Price:	$3.05
+# 
+# *Gender Demographics*
+# Gender Segmentation:	84% Male / 14% Female / 2% undisclosed
+# 
+# Females generally spent $0.18 more than males with an average purchase value of $3.20
+# 
+# *Age Demographics*
+# 64% of players are between the ages of 15-24
+# 
+# The 20-24 segment had the highest total purchase value with a total of $1114.06
+# 
+# The highest average purchase value came from the 1o and under category, followed by the 20-24 segment
+# 
+# *User Insights*
+# The top 5 users by total amount spent
+# 
+# Lisosia93      	18.96 
+# Idastidru52    	15.45 
+# Chamjask73   	13.83 
+# Iral74         	13.62 
+# Iskadarya95    	13.10 
+# 
+# *Product Insights*
+# Top 5 Product by Sales Revenue 
+# 
+#             Item Name			                Total Revenue 
+# Oathbreaker, Last Hope of the Breaking Storm	$50.76	
+# Nirvana		                                    $44.10	
+# Fiery Glass Crusader	                        $41.22	
+# Final Critic	                                $39.04	
+# Singed Scalpel	                                $34.80	
+# 
+# Top 5 Products by Quantity Purchased
+# 	
+#                 Item Name						Amount Purchased 
+# Oathbreaker, Last Hope of the Breaking Storm	12 
+# Extraction, Quickblade Of Trembling Hands       9 
+# Fiery Glass Crusader	                        9 
+# Nirvana	82	                                    9 
+# Pursuit, Cudgel of Necromancy	                8 
+
+# In[1]:
+
+
+import pandas as pd
+import numpy as np
+
+
+# In[2]:
+
+
+#import the data
+Pymolipath = "purchase_data.csv"
+pymoli = pd.read_csv(Pymolipath)
+pymoli.head(10)
+
+
+# # Number of Players
+
+# In[3]:
+
+
+#Breakdown of transactions per player
+player_count_totals = pd.value_counts(pymoli['SN'])
+player_count_totals.head()
+
+
+# In[4]:
+
+
+#Get the total number of unique player Ids on the list
+player_count_number = pymoli['SN'].nunique()
+player_count_number #total is 576
+
+
+# In[5]:
+
+
+#create the dataframe
+player_count_number_ = {'Total Players': [player_count_number]}
+player_count_number_df = pd.DataFrame(data = player_count_number_)
+player_count_number_df
+
+
+# # Purchasing Analysis (Total)
+
+# In[6]:
+
+
+#number of unique items
+unique_item_number = pymoli['Item ID'].nunique()
+unique_item_number
+
+
+# In[7]:
+
+
+#average purchase price
+avg_purchase_price = round(pymoli['Price'].mean(),2)
+avg_purchase_price
+
+
+# In[8]:
+
+
+#Total Revenue
+total_revenue = round(pymoli['Price'].sum(),2)
+total_revenue
+
+
+# In[9]:
+
+
+#number of total purchases
+unique_purchase_number = pymoli['Purchase ID'].nunique()
+unique_purchase_number
+
+
+# In[10]:
+
+
+#most popular item
+Most_popular_item = pd.value_counts(pymoli['Item ID'])
+Most_popular_item.head()
+
+
+# In[11]:
+
+
+#extracting the most popular item number from the series
+Most_popular_item_number = Most_popular_item[Most_popular_item == 12].index[0]
+
+
+# In[12]:
+
+
+#create the data frame
+newdata = {'Number of Unique Items': [unique_item_number], 'Average Price':[avg_purchase_price], 'Number of Purchases': [unique_purchase_number], 
+           'Total Revenue':[total_revenue], 'Most popular Item ID':[Most_popular_item_number]}
+Purchasinganalysis = pd.DataFrame(data = newdata)
+Purchasinganalysis
+
+
+# In[13]:
+
+
+#format the data
+Purchasinganalysis['Average Price'] = Purchasinganalysis['Average Price'].map('${:,.2f}'.format)
+Purchasinganalysis['Total Revenue'] = Purchasinganalysis['Total Revenue'].map('${:,.2f}'.format)
+
+
+# In[14]:
+
+
+Purchasinganalysis
+
+
+# #  Gender Demographics
+
+# In[15]:
+
+
+#percentage count of male players
+#Create a new group by object with applicable columns
+gender_table = pymoli[['SN', 'Gender']]
+gender_table.head()
+
+
+# In[16]:
+
+
+gender_table.count() #total of 780 users
+
+
+# In[17]:
+
+
+#remove any double values
+Gender_Table_Clean = pd.DataFrame.drop_duplicates(gender_table)
+Gender_Table_Clean.count() #576 Values
+
+
+# In[18]:
+
+
+Gender_Statistics = Gender_Table_Clean.groupby(['Gender'])
+Gender_Statistics.count()
+Gender_Statistics_number = [81,484,11] #saving the totals for later
+
+
+# In[19]:
+
+
+#create a new dataframe to easily perform analysis
+Gender_Statistics_list = {'Gender': ['Female', 'Male', 'Other/Non-Disclosed'], 'Total Count':Gender_Statistics_number} 
+
+
+# In[20]:
+
+
+Gender_Statistics_df = pd.DataFrame(data = Gender_Statistics_list)
+Gender_Statistics_df
+
+
+# In[21]:
+
+
+#add percentage
+Gender_Statistics_df['Percentage of Players'] = Gender_Statistics_df['Total Count'] / Gender_Statistics_df['Total Count'].sum()*100
+
+
+# In[22]:
+
+
+#format the percentage of players
+Gender_Statistics_df['Percentage of Players'] = Gender_Statistics_df['Percentage of Players'].map("{0:.2f}%".format)
+
+
+# In[23]:
+
+
+Gender_Statistics_df
+
+
+# #  Purchasing Analysis (Gender)
+
+# In[24]:
+
+
+purchasing_analysis = pymoli[['Gender', 'Price']]
+purchasing_analysis.head(5)
+
+
+# In[25]:
+
+
+#total purchase count
+purchasing_analysis_group = purchasing_analysis.groupby('Gender')
+purchase_count = purchasing_analysis_group.count()
+
+
+# In[26]:
+
+
+#average price
+avg_price = round(purchasing_analysis_group.mean(),2)
+avg_price
+
+
+# In[27]:
+
+
+#Total Value
+total_value = round(purchasing_analysis_group.sum(),2)
+total_value
+
+
+# In[28]:
+
+
+#combine all of the series
+summary_table_purchasing_analysis = pd.concat([purchase_count, avg_price, total_value], axis = 1)
+summary_table_purchasing_analysis
+
+
+# In[29]:
+
+
+#transform to a dataframe for easier manipulation
+summary_table_purchasing_df = pd.DataFrame(data = summary_table_purchasing_analysis)
+summary_table_purchasing_df
+
+
+# In[30]:
+
+
+#rename headers
+summary_table_purchasing_df.columns = ["Purchase Count","Average Purchase Price","Total Purchase Value"]
+summary_table_purchasing_df
+
+
+# In[31]:
+
+
+#add individual count from before to ger avg purchase per person
+summary_table_purchasing_df["Individual Count"] = Gender_Statistics_number #81, 484, 11
+summary_table_purchasing_df
+
+
+# In[32]:
+
+
+#add average purchase per person
+summary_table_purchasing_df["Average Purchase Per Person"] = round(summary_table_purchasing_df["Total Purchase Value"] / summary_table_purchasing_df["Individual Count"],2)
+summary_table_purchasing_df
+
+
+# In[33]:
+
+
+#remove individual count
+summary_table_purchasing_df = summary_table_purchasing_df.drop(["Individual Count"], axis=1)
+summary_table_purchasing_df
+
+
+# In[34]:
+
+
+#Format Dollars
+summary_table_purchasing_df['Average Purchase Price'] = summary_table_purchasing_df['Average Purchase Price'].map('${:,.2f}'.format)
+summary_table_purchasing_df['Total Purchase Value'] = summary_table_purchasing_df['Total Purchase Value'].map('${:,.2f}'.format)
+summary_table_purchasing_df['Average Purchase Per Person'] = summary_table_purchasing_df['Average Purchase Per Person'].map('${:,.2f}'.format)
+
+
+# In[35]:
+
+
+summary_table_purchasing_df
+
+
+# # Age Demographics
+
+# In[36]:
+
+
+# Figure out the minimum and maximum age
+pymoli_maxage = pymoli.loc[pymoli['Age'].idxmax()]
+print(pymoli_maxage) #max age 45
+pymoli_minage = pymoli.loc[pymoli['Age'].idxmin()]
+print(pymoli_minage) #min age 7
+
+
+# In[37]:
+
+
+#create bins and group labels
+bins = [0, 9, 14, 19, 24, 29, 34, 39, 100]
+group_labels = ['<10', '10-14', '15-19', '20-24', '25-29', '30-34', '35-39', '40+']
+
+
+# In[38]:
+
+
+#create sliced with pd.cut
+sliced = pd.cut(pymoli['Age'], bins, labels = group_labels)
+
+
+# In[39]:
+
+
+#apply sliced to the dataset to get each row assigned ot an Age Group
+pymoli['Age Group'] = sliced
+pymoli.head(5)
+
+
+# In[40]:
+
+
+#drop doubles from the data set NOT NEEDED for this assignment
+pymoli_nodup = pymoli.drop_duplicates(['SN'])
+player_count_nodup = pymoli_nodup.count()["SN"] #576 matches the previous duplicate drop, all is well save for later
+
+
+# In[41]:
+
+
+Age_Group_nodup = pymoli_nodup.groupby(['Age Group'])
+Age_Group_count = Age_Group_nodup.count()["SN"]
+Age_Group_count
+
+
+# In[42]:
+
+
+player_count = len(pymoli_nodup)
+
+
+# In[43]:
+
+
+#create a df and rename SN
+Age_group_df = pd.DataFrame(data = Age_Group_count)
+Age_group_df.columns = ["Total Count"]
+
+
+# In[44]:
+
+
+#find percentage of players
+Age_group_df["Percentage of Players"] = round(Age_group_df["Total Count"] / player_count * 100,2)
+Age_group_df
+
+
+# In[45]:
+
+
+Age_group_df["Percentage of Players"] = Age_group_df["Percentage of Players"].map("{0:.2f}%".format)
+
+
+# In[46]:
+
+
+Age_group_df
+
+
+# # Purchasing Analysis (Age)
+
+# In[47]:
+
+
+#create df with no duplicates
+player_count_dup = pymoli.count()["SN"] #variable for length of Pymoli
+Age_Group_dup = pymoli.groupby(['Age Group']) #new groupby with duplicates included
+
+
+# In[48]:
+
+
+Age_Group_count = Age_Group_dup.count()["SN"]
+Age_Group_count
+
+
+# In[49]:
+
+
+#create a df to add future values to
+Age_Group_df2 = pd.DataFrame(data = Age_Group_count)
+Age_Group_df2
+
+
+# In[50]:
+
+
+Age_Group_df2["Average Price"] = round(Age_Group_dup.mean()["Price"],2)
+Age_Group_df2
+
+
+# In[51]:
+
+
+Age_Group_df2["Total Purchase Value"] = round(Age_Group_dup.sum()["Price"],2)
+Age_Group_df2
+
+
+# In[52]:
+
+
+Age_Group_df2["Average Purchase Total per Person by Age Group"] = round(Age_Group_df2["Total Purchase Value"] / Age_group_df["Total Count"], 2)
+Age_Group_df2.rename(columns={'SN':'Total Count'}, inplace=True)
+Age_Group_df2
+
+
+# In[53]:
+
+
+#Format Columns
+Age_Group_df2['Total Purchase Value'] = Age_Group_df2['Total Purchase Value'].map('${:,.2f}'.format)
+Age_Group_df2['Average Purchase Total per Person by Age Group'] = Age_Group_df2['Average Purchase Total per Person by Age Group'].map('${:,.2f}'.format)
+
+
+# In[54]:
+
+
+Age_Group_df2
+
+
+# # Top Spenders
+
+# In[55]:
+
+
+pymoli_spenders = pymoli[['SN', 'Price']]
+
+
+# In[56]:
+
+
+#top_spenders = pymoli_spenders.groupby(['SN', 'Price']).sum()
+top_spenders = pymoli_spenders.groupby(['SN'])
+top_spenders
+
+
+# In[57]:
+
+
+#filter by price total
+top_spenders_filtered = top_spenders["Price"].sum()
+top_spenders_filtered.head()
+
+
+# In[58]:
+
+
+#sort in descending value
+top_spenders_filtered = top_spenders_filtered.sort_values(ascending = False)
+top_5_spenders = top_spenders_filtered[0:5] #take the first 5
+top_5_spenders
+
+
+# In[59]:
+
+
+#Create a df
+top_5_df = pd.DataFrame(data = top_5_spenders)
+top_5_df
+
+
+# In[60]:
+
+
+#extract the top 5 users from the df
+Lisosia93 = pymoli.loc[pymoli['SN'] == 'Lisosia93'] 
+Idastidru52 = pymoli.loc[pymoli['SN'] == 'Idastidru52'] 
+Chamjask73 = pymoli.loc[pymoli['SN'] == 'Chamjask73'] 
+Iral74 = pymoli.loc[pymoli['SN'] == 'Iral74'] 
+Iskadarya95 = pymoli.loc[pymoli['SN'] == 'Iskadarya95'] 
+
+#df frame list
+frames = [Lisosia93, Idastidru52, Chamjask73, Iral74, Iskadarya95]
+#combine dfs
+top_5_df_names = pd.concat(frames)
+
+
+# In[61]:
+
+
+#new groupby object with only top 5
+top_spenders_only = pymoli_spenders.groupby(['SN'])
+
+
+# In[62]:
+
+
+#add purchase count
+top_5_df["Purchase Count"] = top_spenders_only["SN"].count()
+#add Average Purchase Price
+top_5_df["Average Purchase Price"] = round(top_5_df["Price"] / top_5_df["Purchase Count"],2)
+top_5_df
+
+
+# In[63]:
+
+
+#rename the columns
+top_5_df.columns = ["Total Purchase Value", "Purchase Count", "Average Purchase Price"]
+top_5_df
+
+
+# In[64]:
+
+
+#reorder the columns
+top_5_df_reordered = top_5_df[["Purchase Count", "Average Purchase Price", "Total Purchase Value"]]
+top_5_df_reordered
+
+
+# In[65]:
+
+
+#format columns
+top_5_df_reordered["Average Purchase Price"] = top_5_df_reordered["Average Purchase Price"].map('${:,.2f}'.format)
+top_5_df_reordered["Total Purchase Value"] = top_5_df_reordered["Total Purchase Value"].map('${:,.2f}'.format)
+
+
+# In[66]:
+
+
+#print final table
+top_5_df_reordered
+
+
+# # Most Popular Items
+
+# In[67]:
+
+
+#filter out relevant rows for analysis
+pymoli_items = pymoli[['Item ID', 'Item Name', 'Price']]
+
+
+# In[68]:
+
+
+#create group by object
+pymoli_items_filtered = pymoli_items.groupby(['Item Name', 'Item ID']).count()
+pymoli_items_filtered.head()
+
+
+# In[69]:
+
+
+#sort in descending value
+pymoli_items_top_5 = pymoli_items_filtered.sort_values(by = ["Price"], ascending = False)
+pymoli_items_top_5.head()
+
+
+# In[70]:
+
+
+#extract the top 5
+top_5_items = pymoli_items_top_5[0:5]
+top_5_items
+#create a dataframe
+top_5_items_df = pd.DataFrame(data = top_5_items)
+top_5_items_df.head()
+
+
+# In[71]:
+
+
+#extract the top 5 users from the df
+Oathbreaker = pymoli.loc[pymoli['Item Name'] == 'Oathbreaker, Last Hope of the Breaking Storm'] 
+Extraction = pymoli.loc[pymoli['Item Name'] == 'Extraction, Quickblade Of Trembling Hands'] 
+Nirvana = pymoli.loc[pymoli['Item Name'] == 'Nirvana'] 
+Fiery = pymoli.loc[pymoli['Item Name'] == 'Fiery Glass Crusader'] 
+Pursuit = pymoli.loc[pymoli['Item Name'] == 'Pursuit, Cudgel of Necromancy'] 
+
+#df frame list
+frames2 = [Oathbreaker, Extraction, Nirvana, Fiery, Pursuit]
+#combine dfs
+top_items_df_names = pd.concat(frames2)
+top_items_df_names
+
+
+# In[72]:
+
+
+#create new groupby object to get the totals
+top_items_TOTAL = top_items_df_names.groupby(['Item Name', 'Item ID']).sum()
+#make it a dataframe
+top_items_TOTAL_df = pd.DataFrame(data = top_items_TOTAL)
+#only keep relevant column
+top_items_TOTAL_df = top_items_TOTAL_df[['Price']]
+top_items_TOTAL_df
+
+
+# In[73]:
+
+
+top_items_COUNT = top_items_df_names.groupby(['Item Name', 'Item ID']).count()
+#make it a dataframe
+top_items_COUNT_df = pd.DataFrame(data = top_items_COUNT)
+
+
+# In[74]:
+
+
+#only keep one column for count
+top_items_COUNT_df = top_items_COUNT_df[['SN']]
+top_items_COUNT_df
+
+
+# In[75]:
+
+
+#Merge dfs
+Merged = pd.merge(top_items_COUNT_df, top_items_TOTAL_df, on=['Item Name', 'Item ID'])
+Merged
+
+
+# In[76]:
+
+
+#rename columns
+Merged.columns= ['Purchase Count', 'Total Purchase Value']
+Merged
+
+
+# In[77]:
+
+
+Merged['Item Price'] = Merged['Total Purchase Value'] / Merged['Purchase Count']
+#Sort df
+Mergedsorted = Merged.sort_values(by = ["Purchase Count"], ascending = False)
+Mergedsorted
+
+
+# In[78]:
+
+
+#format dollar values, saving original table for next exersize
+Mergedsorted['Total Purchase Value'] = Mergedsorted['Total Purchase Value'].map('${:,.2f}'.format)
+Mergedsorted['Item Price'] = Mergedsorted['Item Price'].map('${:,.2f}'.format)
+
+
+# In[79]:
+
+
+Mergedsorted
+
+
+# # Most Profitable Items
+
+# In[80]:
+
+
+#sort table in descending order
+Profit_group = pymoli.groupby(['Item ID','Item Name'])
+Profit = Profit_group['Price'].sum()
+Profit.head()
+
+
+# In[81]:
+
+
+#convert to data frame
+Profit_df = pd.DataFrame(data = Profit)
+#Sort most profitable first
+Profit_df = Profit_df.sort_values(by = ["Price"], ascending = False)
+Profit_df.head()
+
+
+# In[82]:
+
+
+#extract the top 5 profitable product from the df
+Oathbreaker = pymoli.loc[pymoli['Item Name'] == 'Oathbreaker, Last Hope of the Breaking Storm'] 
+Nirvana = pymoli.loc[pymoli['Item Name'] == 'Nirvana'] 
+Fiery = pymoli.loc[pymoli['Item Name'] == 'Fiery Glass Crusader'] 
+Final = pymoli.loc[pymoli['Item Name'] == 'Final Critic'] 
+Singed = pymoli.loc[pymoli['Item Name'] == 'Singed Scalpel'] 
+
+#df frame list
+frames3 = [Oathbreaker, Nirvana, Fiery, Final, Singed]
+#combine dfs
+top_profit_df = pd.concat(frames3)
+top_profit_df
+
+
+# In[83]:
+
+
+top_profit_df_count = top_profit_df.groupby(['Item ID', 'Item Name']).count()
+top_profit_df_count
+
+
+# In[84]:
+
+
+#create df for easy manipulation
+top_profit_df_countdf = pd.DataFrame(data = top_profit_df_count)
+top_profit_df_countdf
+
+
+# In[85]:
+
+
+#remove final critic with lower count
+top_profit_df_countdf = top_profit_df_countdf.drop(101)
+
+
+# In[86]:
+
+
+top_profit_df_countdf
+
+
+# In[87]:
+
+
+#remove columns
+top_profit_df_countdf = top_profit_df_countdf[["Purchase ID"]]
+
+
+# In[88]:
+
+
+#Merge dfs
+Mergedpt2 = pd.merge(top_profit_df_countdf, Profit_df, on=['Item ID','Item Name'])
+Mergedpt2
+
+
+# In[89]:
+
+
+#rename columns
+Mergedpt2.columns = ['Purchase Count', 'Total Purchase Value']
+Mergedpt2['Price'] = Mergedpt2['Total Purchase Value'] / Mergedpt2['Purchase Count']
+
+
+# In[90]:
+
+
+#sort by Total Purchase Value
+Mergedpt2 = Mergedpt2.sort_values(by = ['Total Purchase Value'], ascending = False)
+Mergedpt2
+
+
+# In[91]:
+
+
+#Format dollar values
+Mergedpt2['Total Purchase Value'] = Mergedpt2['Total Purchase Value'].map('${:,.2f}'.format)
+Mergedpt2['Price'] = Mergedpt2['Price'].map('${:,.2f}'.format)
+
+
+# In[92]:
+
+
+Mergedpt2
+
