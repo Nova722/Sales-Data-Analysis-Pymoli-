@@ -1,9 +1,3 @@
-# Sales-Data-Analysis-Pymoli-
-# Unit 4 | Assignment - Pandas, Pandas, Pandas
-
-Heroes of Pymoli
-
-![Fantasy](Images/Fantasy.jpg)
 
 
 Your final report should include each of the following:
@@ -67,10 +61,5 @@ Your final report should include each of the following:
   * Item Price
   * Total Purchase Value
 
-As final considerations:
-
-* You must use the Pandas Library and the Jupyter Notebook.
-* You must submit a link to your Jupyter Notebook with the viewable Data Frames.
-* You must include a written description of three observable trends based on the data.
 
 
